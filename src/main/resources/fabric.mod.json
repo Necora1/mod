@@ -1,0 +1,29 @@
+{
+	"schemaVersion": 1,
+	"id": "aicompanion",
+	"version": "${version}",
+	"name": "AI Companion",
+	"description": "An AI-driven, player-like companion powered by Groq or a local Llama model (Ollama / LM Studio / llama.cpp). Talk to it in chat, give it tasks, and it remembers.",
+	"authors": [
+		"Necora1"
+	],
+	"contact": {
+		"sources": "https://github.com/Necora1/mod"
+	},
+	"license": "MIT",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			"com.necora.aicompanion.AICompanionMod"
+		],
+		"client": [
+			"com.necora.aicompanion.client.AICompanionClient"
+		]
+	},
+	"depends": {
+		"fabricloader": ">=0.16.0",
+		"minecraft": "~1.21.1",
+		"java": ">=21",
+		"fabric-api": "*"
+	}
+}
