@@ -101,6 +101,7 @@ It survives restarts, deaths and dismissals. `/companion memory Steve` shows it,
 | `/companion dismiss <name>` | Send it away (keeps memory + items) |
 | `/companion delete <name> confirm` | Delete it and all its memories |
 | `/companion list` | All companions |
+| `/companion status <name>` | Health, hunger, mode and what it's doing right now |
 | `/companion say <name> <msg>` | Talk to it without using public chat |
 | `/companion stop / follow / stay / come / tp <name>` | Quick orders without the AI |
 | `/companion do <name> <json>` | Run actions directly, e.g. `{"type":"build","structure":"house","material":"spruce_planks"}` |

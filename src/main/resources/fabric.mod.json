@@ -10,7 +10,6 @@
 	"contact": {
 		"sources": "https://github.com/Necora1/mod"
 	},
-	"license": "MIT",
 	"environment": "*",
 	"entrypoints": {
 		"main": [
