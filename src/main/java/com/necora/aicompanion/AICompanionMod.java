@@ -1,6 +1,11 @@
 package com.necora.aicompanion;
 
+import com.necora.aicompanion.command.CompanionCommands;
+import com.necora.aicompanion.config.CompanionConfig;
+import com.necora.aicompanion.manager.CompanionManager;
+import com.necora.aicompanion.registry.ModEntities;
 import net.fabricmc.api.ModInitializer;
+import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -10,6 +15,10 @@ public class AICompanionMod implements ModInitializer {
 
 	@Override
 	public void onInitialize() {
-		LOGGER.info("AI Companion loading");
+		CompanionConfig.load();
+		ModEntities.init();
+		CompanionManager.init();
+		CommandRegistrationCallback.EVENT.register(CompanionCommands::register);
+		LOGGER.info("AI Companion ready (provider: {}, model: {})", CompanionConfig.get().effectiveProvider(), CompanionConfig.get().effectiveModel());
 	}
 }
