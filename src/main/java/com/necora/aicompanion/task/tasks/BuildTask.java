@@ -187,7 +187,10 @@ public class BuildTask extends Task {
 			return Status.RUNNING;
 		}
 
-		if (c.canReachBlock(e.pos(), actReach)) {
+		// Never build from inside a space that must stay free (e.g. the player's spot in a shelter),
+		// or the companion would wall itself in.
+		boolean standingInKeepFree = blueprint.getKeepFree().contains(c.getBlockPos()) || blueprint.getKeepFree().contains(c.getBlockPos().up());
+		if (c.canReachBlock(e.pos(), actReach) && !standingInKeepFree) {
 			if (pillar == Pillar.ON_TOP) c.getMover().keepAlive();
 			return act(e);
 		}

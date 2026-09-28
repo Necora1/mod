@@ -35,10 +35,11 @@ jobs:
         run: |
           set -o pipefail
           ./gradlew runGametest --console=plain 2>&1 | tee gametest.log
-      - name: show errors
-        if: failure()
+      - name: test summary / errors
+        if: always()
         run: |
           grep -E -A3 "(\.java:[0-9]+: (error|warning):)|FAILURE|What went wrong" build.log | head -n 400 || true
           if [ -f gametest.log ]; then
             grep -E -B2 -A12 "failed|Exception|ERROR|required tests" gametest.log | grep -v "^\s*at " | head -n 400 || true
+            grep -E "GAME TESTS COMPLETE|required tests (passed|failed)" gametest.log || true
           fi

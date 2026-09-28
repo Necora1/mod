@@ -291,6 +291,23 @@ public class CompanionGameTests implements FabricGameTest {
 		});
 	}
 
+	@GameTest(templateName = EMPTY_STRUCTURE, tickLimit = 800)
+	public void shelterBuiltFromOutside(TestContext ctx) {
+		BlockPos feetRel = new BlockPos(4, 0, 4);
+		CompanionEntity c = spawn(ctx, feetRel, true);
+		BlockPos feet = ctx.getAbsolutePos(feetRel);
+		Blueprint bp = Structures.surround(ctx.getWorld(), feet, 1, Blocks.COBBLESTONE.getDefaultState(), true, false, null);
+		c.getTaskManager().replaceAll(List.of(new BuildTask(c, bp, "shelter", false)));
+		succeedWhen(ctx, 800, () -> {
+			if (c.getTaskManager().isBusy()) return "still building; doing: " + c.getTaskManager().describe();
+			if (!ctx.getWorld().getBlockState(feet.up(2)).isOf(Blocks.COBBLESTONE)) return "roof missing";
+			if (!ctx.getWorld().getBlockState(feet.west()).isOf(Blocks.COBBLESTONE)) return "wall missing";
+			BlockPos at = c.getBlockPos();
+			if (at.equals(feet) || at.equals(feet.up())) return "companion walled itself in";
+			return null;
+		});
+	}
+
 	@GameTest(templateName = EMPTY_STRUCTURE)
 	public void namesAndMaterialsResolve(TestContext ctx) {
 		ctx.assertTrue(Names.block("oak planks") == Blocks.OAK_PLANKS, "oak planks");
