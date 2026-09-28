@@ -37,7 +37,7 @@ public class EmoteTask extends Task {
 	@Override
 	protected Status start() {
 		startYaw = c.getYaw();
-		c.getMovement().stop();
+		c.getMover().stop();
 		return Status.RUNNING;
 	}
 

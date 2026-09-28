@@ -346,7 +346,7 @@ public final class Structures {
 	public static Blueprint surround(World world, BlockPos feet, int radius, BlockState block, boolean roof, boolean floor, @Nullable BlockState windowBlock) {
 		int r = MathHelper.clamp(radius, 1, 4);
 		int innerTop = 1 + (r - 1); // interior from y=0 to innerTop
-		Blueprint bp = new Blueprint("shelter").anchor(feet);
+		Blueprint bp = new Blueprint("shelter").anchor(feet).acceptExistingSolids(true);
 		for (int dx = -r; dx <= r; dx++) {
 			for (int dz = -r; dz <= r; dz++) {
 				for (int dy = -1; dy <= innerTop + 1; dy++) {

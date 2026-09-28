@@ -58,7 +58,7 @@ public class TaskManager {
 			if (status != Task.Status.RUNNING && current == running) {
 				current = null;
 				running.stop();
-				c.getMovement().stop();
+				c.getMover().stop();
 				onFinished(running, status == Task.Status.SUCCESS);
 			}
 		} else if (behavior != null) {
@@ -92,7 +92,7 @@ public class TaskManager {
 			current = null;
 		}
 		queue.clear();
-		c.getMovement().stop();
+		c.getMover().stop();
 	}
 
 	/** "stop": drop everything and just stand around. */

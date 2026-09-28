@@ -21,7 +21,7 @@ public class LookTask extends Task {
 		if (p == null) return Status.SUCCESS;
 		if (target.entity() != null) c.getLookControl().lookAt(target.entity(), 30.0F, 30.0F);
 		else c.getLookControl().lookAt(p.x, p.y + 0.5, p.z, 30.0F, 30.0F);
-		c.getMovement().keepAlive();
+		c.getMover().keepAlive();
 		return ticks >= duration ? Status.SUCCESS : Status.RUNNING;
 	}
 

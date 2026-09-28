@@ -115,7 +115,7 @@ public class MineTask extends Task {
 			}
 			if (stand == null) {
 				if (c.isCreativeMode()) {
-					c.getMovement().flyTo(target.toCenterPos().add(0, 1.5, 0), 1.2);
+					c.getMover().flyTo(target.toCenterPos().add(0, 1.5, 0), 1.2);
 					reach = c.getBlockReach();
 					return Status.RUNNING;
 				}
@@ -123,7 +123,7 @@ public class MineTask extends Task {
 				return Status.RUNNING;
 			}
 		}
-		CompanionMovement.Status st = c.getMovement().moveToBlock(stand, CompanionEntity.WALK_SPEED);
+		CompanionMovement.Status st = c.getMover().moveToBlock(stand, CompanionEntity.WALK_SPEED);
 		if (st == CompanionMovement.Status.FAILED) {
 			badStands.add(stand);
 			stand = null;
@@ -146,7 +146,7 @@ public class MineTask extends Task {
 		List<ItemEntity> items = c.getWorld().getEntitiesByClass(ItemEntity.class, box, i -> i.isAlive() && !i.cannotPickup() && (i.owner == null || i.owner.equals(c.getUuid())));
 		if (items.isEmpty() || c.isInventoryFull()) return false;
 		items.sort(Comparator.comparingDouble(c::squaredDistanceTo));
-		c.getMovement().moveTo(items.get(0).getPos(), CompanionEntity.WALK_SPEED, 0.5);
+		c.getMover().moveTo(items.get(0).getPos(), CompanionEntity.WALK_SPEED, 0.5);
 		return true;
 	}
 

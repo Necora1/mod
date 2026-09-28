@@ -184,7 +184,7 @@ public class BuildTask extends Task {
 		}
 
 		if (c.canReachBlock(e.pos(), actReach)) {
-			if (pillar == Pillar.ON_TOP) c.getMovement().keepAlive();
+			if (pillar == Pillar.ON_TOP) c.getMover().keepAlive();
 			return act(e);
 		}
 		if (pillar == Pillar.ON_TOP) {
@@ -240,6 +240,7 @@ public class BuildTask extends Task {
 			return WorldUtil.isProtected(world, e.pos(), current);
 		}
 		if (current.getBlock() == e.state().getBlock()) return true;
+		if (blueprint.acceptsExistingSolids() && current.isSolidBlock(world, e.pos()) && !WorldUtil.isHarmful(current)) return true;
 		return Blueprint.isSecondaryPart(e.state());
 	}
 
@@ -338,7 +339,7 @@ public class BuildTask extends Task {
 		if (++waitingForItemTicks > 20 * 60) {
 			return finish(false, "ran out of " + ItemUtil.id(item));
 		}
-		c.getMovement().keepAlive();
+		c.getMover().keepAlive();
 		return Status.RUNNING;
 	}
 
@@ -361,9 +362,9 @@ public class BuildTask extends Task {
 			}
 		}
 		if (best != null) {
-			c.getMovement().moveToBlock(best, CompanionEntity.WALK_SPEED);
+			c.getMover().moveToBlock(best, CompanionEntity.WALK_SPEED);
 		} else if (c.isCreativeMode()) {
-			c.getMovement().flyTo(c.getPos().add(0, 1.5, 0), 1.0);
+			c.getMover().flyTo(c.getPos().add(0, 1.5, 0), 1.0);
 		} else {
 			defer(current);
 		}
@@ -374,8 +375,8 @@ public class BuildTask extends Task {
 	}
 
 	private void keepPosition() {
-		if (pillar == Pillar.ON_TOP || pillar == Pillar.CLIMBING || c.getMovement().isFlying()) {
-			c.getMovement().keepAlive();
+		if (pillar == Pillar.ON_TOP || pillar == Pillar.CLIMBING || c.getMover().isFlying()) {
+			c.getMover().keepAlive();
 			centerOnPillar();
 		}
 	}
@@ -385,7 +386,7 @@ public class BuildTask extends Task {
 	// ------------------------------------------------------------------
 
 	private void approach(BlockPlacement e) {
-		CompanionMovement movement = c.getMovement();
+		CompanionMovement movement = c.getMover();
 		if (c.isCreativeMode()) {
 			BlockPos hover = standTarget != null ? standTarget : findHoverSpot(e.pos());
 			if (hover == null) {
@@ -394,7 +395,7 @@ public class BuildTask extends Task {
 			}
 			standTarget = hover;
 			Vec3d target = Vec3d.ofBottomCenter(hover).add(0, 0.1, 0);
-			CompanionMovement.Status st = c.getMovement().isFlying() || needsFlight(hover)
+			CompanionMovement.Status st = c.getMover().isFlying() || needsFlight(hover)
 					? movement.flyTo(target, 1.2)
 					: movement.moveTo(target, CompanionEntity.SPRINT_SPEED, 0.6);
 			if (st == CompanionMovement.Status.FAILED) {
@@ -461,7 +462,7 @@ public class BuildTask extends Task {
 		int tries = 0;
 		for (BlockPos p : candidates) {
 			if (tries++ >= 6) break;
-			Path path = c.getMovement().findPath(p);
+			Path path = c.getMover().findPath(p);
 			if (path != null && path.reachesTarget()) return p;
 			badStands.add(p);
 		}
@@ -534,7 +535,7 @@ public class BuildTask extends Task {
 		int tries = 0;
 		for (BlockPos base : bases) {
 			if (tries++ >= 4) break;
-			if (base.equals(here) || c.getMovement().canWalkTo(base)) {
+			if (base.equals(here) || c.getMover().canWalkTo(base)) {
 				pillarBase = base;
 				pillarGoalY = Math.max(base.getY() + 1, goal);
 				pillar = Pillar.MOVING_TO_BASE;
@@ -556,7 +557,7 @@ public class BuildTask extends Task {
 			if (current >= 0) defer(current);
 			return Status.RUNNING;
 		}
-		CompanionMovement.Status st = c.getMovement().moveToBlock(pillarBase, CompanionEntity.WALK_SPEED);
+		CompanionMovement.Status st = c.getMover().moveToBlock(pillarBase, CompanionEntity.WALK_SPEED);
 		if (st == CompanionMovement.Status.ARRIVED) {
 			pillar = Pillar.CLIMBING;
 			pillarTicks = 0;
@@ -577,7 +578,7 @@ public class BuildTask extends Task {
 	}
 
 	private Status climb() {
-		c.getMovement().keepAlive();
+		c.getMover().keepAlive();
 		centerOnPillar();
 		if (++pillarTicks > 400 || pillarBase == null) {
 			pillar = pillarBlocks.isEmpty() ? Pillar.NONE : Pillar.DESCENDING;
@@ -641,7 +642,7 @@ public class BuildTask extends Task {
 	}
 
 	private Status descend() {
-		c.getMovement().keepAlive();
+		c.getMover().keepAlive();
 		if (pillarBlocks.isEmpty()) {
 			pillar = Pillar.NONE;
 			breaker.reset();
@@ -689,7 +690,7 @@ public class BuildTask extends Task {
 
 	private Status finish(boolean ok, @Nullable String problem) {
 		breaker.reset();
-		if (c.getMovement().isFlying() && c.isCreativeMode()) {
+		if (c.getMover().isFlying() && c.isCreativeMode()) {
 			// stay in the air; the next behaviour decides whether to land
 		}
 		CompanionBrain brain = CompanionManager.brainOf(c);

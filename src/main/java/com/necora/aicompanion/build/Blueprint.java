@@ -27,6 +27,8 @@ public class Blueprint {
 	private BlockPos anchor = BlockPos.ORIGIN;
 	/** Build from the top down (digging) instead of bottom up. */
 	private boolean topDown = false;
+	/** Any solid block already in place counts as done (e.g. a shelter next to a stone wall). */
+	private boolean acceptExistingSolids = false;
 
 	public Blueprint(String name) {
 		this.name = name;
@@ -39,6 +41,15 @@ public class Blueprint {
 
 	public BlockPos getAnchor() {
 		return anchor;
+	}
+
+	public Blueprint acceptExistingSolids(boolean value) {
+		this.acceptExistingSolids = value;
+		return this;
+	}
+
+	public boolean acceptsExistingSolids() {
+		return acceptExistingSolids;
 	}
 
 	public Blueprint topDown(boolean value) {

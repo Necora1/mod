@@ -47,7 +47,7 @@ public class GiveTask extends Task {
 			if (!recipient.isAlive() || recipient.getWorld() != c.getWorld()) return fail(recipientName() + " isn't around");
 			double dist = c.distanceTo(recipient);
 			if (dist > 3.0) {
-				CompanionMovement.Status st = c.getMovement().moveTo(recipient.getPos(), dist > 10 ? CompanionEntity.SPRINT_SPEED : CompanionEntity.WALK_SPEED, 2.2);
+				CompanionMovement.Status st = c.getMover().moveTo(recipient.getPos(), dist > 10 ? CompanionEntity.SPRINT_SPEED : CompanionEntity.WALK_SPEED, 2.2);
 				if (st == CompanionMovement.Status.FAILED && ++moveFailures > 3 && dist > 8) return fail("couldn't reach " + recipientName());
 				return Status.RUNNING;
 			}

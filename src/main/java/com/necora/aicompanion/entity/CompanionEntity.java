@@ -121,8 +121,11 @@ public class CompanionEntity extends PathAwareEntity {
 	private int chatCooldown = 0;
 
 	private int sneakTicks = 0;
+	/** Item conjured into the hand while building in creative (not a real inventory item). */
+	@Nullable
+	private ItemStack displayStack;
 	private int lastBlockActionTick = 0;
-	private boolean dead = false;
+	private boolean deathHandled = false;
 
 	private record PendingChat(String message, int delay) {
 	}
@@ -188,7 +191,7 @@ public class CompanionEntity extends PathAwareEntity {
 		return inventory;
 	}
 
-	public CompanionMovement getMovement() {
+	public CompanionMovement getMover() {
 		return movement;
 	}
 
@@ -359,7 +362,7 @@ public class CompanionEntity extends PathAwareEntity {
 	}
 
 	private boolean isSpectatorLike() {
-		return this.dead || this.isRemoved();
+		return this.deathHandled || this.isRemoved();
 	}
 
 	@Override
@@ -611,17 +614,18 @@ public class CompanionEntity extends PathAwareEntity {
 	public boolean selectItem(Predicate<ItemStack> predicate) {
 		ItemStack held = this.getMainHandStack();
 		if (!held.isEmpty() && predicate.test(held)) return true;
+		boolean fake = held == displayStack;
 		for (int i = 0; i < inventory.size(); i++) {
 			ItemStack s = inventory.getStack(i);
 			if (!s.isEmpty() && predicate.test(s)) {
-				inventory.setStack(i, held.copy());
+				inventory.setStack(i, fake ? ItemStack.EMPTY : held.copy());
 				this.equipStack(EquipmentSlot.MAINHAND, s);
 				return true;
 			}
 		}
 		ItemStack off = this.getOffHandStack();
 		if (!off.isEmpty() && predicate.test(off)) {
-			this.equipStack(EquipmentSlot.OFFHAND, held.copy());
+			this.equipStack(EquipmentSlot.OFFHAND, fake ? ItemStack.EMPTY : held.copy());
 			this.equipStack(EquipmentSlot.MAINHAND, off);
 			return true;
 		}
@@ -632,6 +636,10 @@ public class CompanionEntity extends PathAwareEntity {
 	public void emptyMainHand() {
 		ItemStack held = this.getMainHandStack();
 		if (held.isEmpty()) return;
+		if (held == displayStack) {
+			this.equipStack(EquipmentSlot.MAINHAND, ItemStack.EMPTY);
+			return;
+		}
 		ItemStack rest = inventory.addStack(held.copy());
 		this.equipStack(EquipmentSlot.MAINHAND, rest);
 	}
@@ -640,15 +648,13 @@ public class CompanionEntity extends PathAwareEntity {
 	public void holdForDisplay(Item item) {
 		ItemStack held = this.getMainHandStack();
 		if (held.isOf(item)) return;
-		if (!held.isEmpty()) {
-			if (isCreativeMode() && !ItemUtil.isValuable(held) && countItem(held.getItem()) == held.getCount() && held.getItem() instanceof net.minecraft.item.BlockItem) {
-				// creative "picked" blocks just vanish from the hand, like switching hotbar slots
-			} else {
-				ItemStack rest = inventory.addStack(held.copy());
-				if (!rest.isEmpty()) this.dropStack(rest);
-			}
+		if (!held.isEmpty() && held != displayStack) {
+			// a real item: put it back in the inventory
+			ItemStack rest = inventory.addStack(held.copy());
+			if (!rest.isEmpty()) this.dropStack(rest);
 		}
-		this.equipStack(EquipmentSlot.MAINHAND, new ItemStack(item));
+		displayStack = new ItemStack(item);
+		this.equipStack(EquipmentSlot.MAINHAND, displayStack);
 	}
 
 	/**
@@ -922,8 +928,8 @@ public class CompanionEntity extends PathAwareEntity {
 
 	@Override
 	public void onDeath(DamageSource source) {
-		if (!this.getWorld().isClient && !dead) {
-			dead = true;
+		if (!this.getWorld().isClient && !deathHandled) {
+			deathHandled = true;
 			Text message = this.getDamageTracker().getDeathMessage();
 			CompanionManager.onCompanionDied(this, message);
 		}
@@ -943,7 +949,7 @@ public class CompanionEntity extends PathAwareEntity {
 		for (EquipmentSlot slot : EquipmentSlot.values()) {
 			ItemStack s = this.getEquippedStack(slot);
 			if (!s.isEmpty()) {
-				this.dropStack(s.copy());
+				if (s != displayStack) this.dropStack(s.copy());
 				this.equipStack(slot, ItemStack.EMPTY);
 			}
 		}
@@ -1046,7 +1052,7 @@ public class CompanionEntity extends PathAwareEntity {
 		NbtCompound equipment = new NbtCompound();
 		for (EquipmentSlot slot : EquipmentSlot.values()) {
 			ItemStack s = this.getEquippedStack(slot);
-			if (!s.isEmpty()) equipment.put(slot.getName(), s.encode(this.getRegistryManager()));
+			if (!s.isEmpty() && s != displayStack) equipment.put(slot.getName(), s.encode(this.getRegistryManager()));
 		}
 		nbt.put("Equipment", equipment);
 		nbt.putInt("FoodLevel", foodLevel);

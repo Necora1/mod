@@ -45,7 +45,7 @@ public class FollowBehavior extends Task {
 	@Override
 	protected Status tick() {
 		ServerPlayerEntity p = target();
-		CompanionMovement movement = c.getMovement();
+		CompanionMovement movement = c.getMover();
 		if (p == null || p.isSpectator() || !p.isAlive()) {
 			PlayerSocial.idleLook(c, null);
 			return Status.RUNNING;

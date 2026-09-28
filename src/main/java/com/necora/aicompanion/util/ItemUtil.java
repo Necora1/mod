@@ -20,7 +20,7 @@ public final class ItemUtil {
 	private static final Set<Item> BAD_FOOD = Set.of(
 			Items.ROTTEN_FLESH, Items.SPIDER_EYE, Items.POISONOUS_POTATO, Items.PUFFERFISH,
 			Items.CHORUS_FRUIT, Items.SUSPICIOUS_STEW, Items.GOLDEN_APPLE, Items.ENCHANTED_GOLDEN_APPLE,
-			Items.RAW_CHICKEN);
+			Items.CHICKEN);
 	private static final Set<Item> SCAFFOLD = Set.of(
 			Items.DIRT, Items.COBBLESTONE, Items.COBBLED_DEEPSLATE, Items.NETHERRACK, Items.STONE,
 			Items.ANDESITE, Items.DIORITE, Items.GRANITE, Items.TUFF, Items.DEEPSLATE, Items.BLACKSTONE,

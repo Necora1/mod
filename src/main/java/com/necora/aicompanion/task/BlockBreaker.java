@@ -109,7 +109,7 @@ public class BlockBreaker {
 		if (StatusEffectUtil.hasHaste(c)) speed *= 1.0F + (StatusEffectUtil.getHasteAmplifier(c) + 1) * 0.2F;
 		speed *= (float) c.getAttributeValue(EntityAttributes.PLAYER_BLOCK_BREAK_SPEED);
 		if (c.isSubmergedInWater()) speed *= (float) c.getAttributeValue(EntityAttributes.PLAYER_SUBMERGED_MINING_SPEED);
-		if (!c.isOnGround() && !c.getMovement().isFlying() && !c.isTouchingWater()) speed /= 5.0F;
+		if (!c.isOnGround() && !c.getMover().isFlying() && !c.isTouchingWater()) speed /= 5.0F;
 		boolean canHarvest = !state.isToolRequired() || tool.isSuitableFor(state);
 		return speed / hardness / (canHarvest ? 30.0F : 100.0F);
 	}

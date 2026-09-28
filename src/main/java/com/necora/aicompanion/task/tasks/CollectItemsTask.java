@@ -49,7 +49,7 @@ public class CollectItemsTask extends Task {
 			current = items.get(0);
 			currentTicks = 0;
 		}
-		CompanionMovement.Status st = c.getMovement().moveTo(current.getPos(), CompanionEntity.WALK_SPEED, 0.4);
+		CompanionMovement.Status st = c.getMover().moveTo(current.getPos(), CompanionEntity.WALK_SPEED, 0.4);
 		if (st == CompanionMovement.Status.FAILED) {
 			unreachable.add(current.getUuid());
 			current = null;

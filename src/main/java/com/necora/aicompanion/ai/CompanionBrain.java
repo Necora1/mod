@@ -50,6 +50,10 @@ public class CompanionBrain {
 
 	private long lastHurtEventAt, lastPunchEventAt, lastGiftEventAt, lastOwnerHurtEventAt;
 	private int killsSinceReport;
+	@Nullable
+	private String lastFailure;
+	private long lastFailureAt;
+	private int sameFailureCount;
 
 	@Nullable
 	private List<BlockPos> lastBuild;
@@ -133,7 +137,21 @@ public class CompanionBrain {
 		String text = (success ? "Task done: " : "Task failed: ") + (message == null || message.isBlank() ? task.describe() : message);
 		memory.addEvent(text, timeStamp());
 		dirty = true;
-		onEvent(text + (success ? "" : ". Tell your owner and maybe try something else."), !success);
+		if (!success) {
+			// Don't let the model retry the same failing thing in a tight loop.
+			long now = System.currentTimeMillis();
+			if (text.equals(lastFailure) && now - lastFailureAt < 120_000) {
+				sameFailureCount++;
+			} else {
+				sameFailureCount = 0;
+			}
+			lastFailure = text;
+			lastFailureAt = now;
+			if (sameFailureCount >= 2) return;
+			onEvent(text + ". Tell your owner and maybe try something else" + (sameFailureCount == 1 ? " (this already failed before - don't just repeat it)." : "."), sameFailureCount == 0);
+			return;
+		}
+		onEvent(text, false);
 	}
 
 	public void onTaskProblem(String text) {

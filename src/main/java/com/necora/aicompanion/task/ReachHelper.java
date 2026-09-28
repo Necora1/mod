@@ -41,7 +41,7 @@ public final class ReachHelper {
 		int tries = 0;
 		for (BlockPos p : candidates) {
 			if (tries++ >= 6) break;
-			Path path = c.getMovement().findPath(p);
+			Path path = c.getMover().findPath(p);
 			if (path != null && path.reachesTarget()) return p;
 			bad.add(p);
 		}

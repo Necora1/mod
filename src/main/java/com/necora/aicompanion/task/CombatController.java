@@ -219,7 +219,7 @@ public class CombatController {
 	}
 
 	private void engage(LivingEntity t) {
-		CompanionMovement movement = c.getMovement();
+		CompanionMovement movement = c.getMover();
 		c.getLookControl().lookAt(t, 30.0F, 30.0F);
 		double distSq = c.squaredDistanceTo(t);
 
@@ -285,7 +285,7 @@ public class CombatController {
 			return;
 		}
 		if (inRange && attackCooldown <= 0 && c.canSee(t)) {
-			if (c.isOnGround() && !c.isTouchingWater() && !c.getMovement().isFlying() && c.getRandom().nextFloat() < 0.35F) {
+			if (c.isOnGround() && !c.isTouchingWater() && !c.getMover().isFlying() && c.getRandom().nextFloat() < 0.35F) {
 				c.getJumpControl().setActive();
 				pendingCrit = true;
 				critTicks = 0;

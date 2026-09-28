@@ -27,9 +27,9 @@ public class StayBehavior extends Task {
 	protected Status tick() {
 		Vec3d center = Vec3d.ofBottomCenter(pos);
 		if (c.getPos().squaredDistanceTo(center) > 2.5 * 2.5) {
-			c.getMovement().moveTo(center, CompanionEntity.WALK_SPEED, 1.0);
-		} else if (c.getMovement().isFlying() && !c.getWorld().getBlockState(c.getBlockPos().down()).isAir()) {
-			c.getMovement().land();
+			c.getMover().moveTo(center, CompanionEntity.WALK_SPEED, 1.0);
+		} else if (c.getMover().isFlying() && !c.getWorld().getBlockState(c.getBlockPos().down()).isAir()) {
+			c.getMover().land();
 		} else {
 			PlayerSocial.idleLook(c, c.getOwner());
 		}

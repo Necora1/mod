@@ -34,7 +34,7 @@ public class GotoTask extends Task {
 		if (p == null || (e != null && e.getWorld() != c.getWorld())) return fail("lost track of " + target.describe());
 		if (ticks > limit) return fail("couldn't get to " + target.describe() + " in time");
 		double dist = c.getPos().distanceTo(p);
-		CompanionMovement.Status st = c.getMovement().moveTo(p, dist > 10 ? CompanionEntity.SPRINT_SPEED : CompanionEntity.WALK_SPEED, arrive);
+		CompanionMovement.Status st = c.getMover().moveTo(p, dist > 10 ? CompanionEntity.SPRINT_SPEED : CompanionEntity.WALK_SPEED, arrive);
 		if (st == CompanionMovement.Status.ARRIVED) {
 			if (e != null) c.getLookControl().lookAt(e, 30.0F, 30.0F);
 			return success("arrived at " + target.describe());
