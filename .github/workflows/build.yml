@@ -22,7 +22,13 @@ jobs:
       - name: make gradle wrapper executable
         run: chmod +x ./gradlew
       - name: build
-        run: ./gradlew build --stacktrace
+        run: |
+          set -o pipefail
+          ./gradlew build --console=plain 2>&1 | tee build.log
+      - name: show compile errors
+        if: failure()
+        run: |
+          grep -E -A3 "(\.java:[0-9]+: (error|warning):)|FAILURE|What went wrong" build.log | head -n 800 || true
       - name: capture build artifacts
         uses: actions/upload-artifact@v4
         with:
