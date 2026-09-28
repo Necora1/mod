@@ -7,6 +7,7 @@ import com.necora.aicompanion.ai.ActionDispatcher;
 import com.necora.aicompanion.ai.CompanionBrain;
 import com.necora.aicompanion.ai.Reply;
 import com.necora.aicompanion.build.Blueprint;
+import com.necora.aicompanion.build.Frame;
 import com.necora.aicompanion.build.Materials;
 import com.necora.aicompanion.build.Structures;
 import com.necora.aicompanion.entity.CompanionEntity;
@@ -21,6 +22,7 @@ import com.necora.aicompanion.task.tasks.MineTask;
 import com.necora.aicompanion.util.Names;
 import net.fabricmc.fabric.api.gametest.v1.FabricGameTest;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.DoorBlock;
 import net.minecraft.block.Blocks;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
@@ -29,6 +31,7 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.test.GameTest;
 import net.minecraft.test.TestContext;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
 
 import java.util.List;
@@ -194,6 +197,58 @@ public class CompanionGameTests implements FabricGameTest {
 		succeedWhen(ctx, 400, () -> {
 			for (int y = 0; y < 3; y++) {
 				if (!ctx.getWorld().getBlockState(at.up(y)).isOf(Blocks.OAK_PLANKS)) return "pillar block " + y + " missing; doing: " + c.getTaskManager().describe();
+			}
+			return null;
+		});
+	}
+
+	@GameTest(templateName = EMPTY_STRUCTURE, tickLimit = 2400)
+	public void creativeBuildsHouse(TestContext ctx) {
+		CompanionEntity c = spawn(ctx, new BlockPos(0, 0, 0), true);
+		Structures.HouseSpec spec = new Structures.HouseSpec();
+		spec.width = 5;
+		spec.depth = 5;
+		spec.height = 3;
+		Frame f = new Frame(ctx.getAbsolutePos(new BlockPos(1, 0, 6)), Direction.NORTH);
+		Blueprint bp = Structures.house(ctx.getWorld(), f, spec);
+		c.getTaskManager().replaceAll(List.of(new BuildTask(c, bp, "test house", false)));
+		succeedWhen(ctx, 2400, () -> {
+			ServerWorld w = ctx.getWorld();
+			String doing = "; doing: " + c.getTaskManager().describe();
+			if (c.getTaskManager().isBusy()) return "still building" + doing;
+			if (!(w.getBlockState(f.at(2, 1, 0)).getBlock() instanceof DoorBlock)) return "door missing" + doing;
+			if (!w.getBlockState(f.at(0, 1, 0)).isOf(spec.corner)) return "corner log missing";
+			if (!w.getBlockState(f.at(1, 2, 0)).isOf(spec.wall)) return "front wall missing";
+			if (!w.getBlockState(f.at(1, 1, 1)).isOf(Blocks.TORCH)) return "inside torch missing";
+			if (!w.getBlockState(f.at(-1, 4, 0)).isOf(Blocks.SPRUCE_STAIRS)) return "roof stairs missing: " + w.getBlockState(f.at(-1, 4, 0));
+			if (!w.getBlockState(f.at(2, 2, 2)).isAir()) return "inside should be empty";
+			return null;
+		});
+	}
+
+	@GameTest(templateName = EMPTY_STRUCTURE, tickLimit = 1600)
+	public void survivalPillarsUpToReach(TestContext ctx) {
+		CompanionEntity c = spawn(ctx, new BlockPos(1, 0, 1), false);
+		c.getInventory().setStack(0, new ItemStack(Items.DIRT, 10));
+		c.getInventory().setStack(1, new ItemStack(Items.COBBLESTONE, 8));
+		BlockPos base = ctx.getAbsolutePos(new BlockPos(4, 0, 4));
+		Blueprint bp = Structures.pillar(base, 8, Blocks.COBBLESTONE.getDefaultState());
+		c.getTaskManager().replaceAll(List.of(new BuildTask(c, bp, "tall pillar", false)));
+		succeedWhen(ctx, 1600, () -> {
+			ServerWorld w = ctx.getWorld();
+			String doing = "; doing: " + c.getTaskManager().describe() + " at " + ctx.getRelativePos(c.getBlockPos());
+			for (int y = 0; y < 8; y++) {
+				if (!w.getBlockState(base.up(y)).isOf(Blocks.COBBLESTONE)) return "pillar block " + y + " missing" + doing;
+			}
+			if (c.getTaskManager().isBusy()) return "still working" + doing;
+			BlockPos rel = ctx.getRelativePos(c.getBlockPos());
+			if (rel.getY() > 1) return "companion didn't come back down" + doing;
+			for (int dx = -2; dx <= 2; dx++) {
+				for (int dz = -2; dz <= 2; dz++) {
+					for (int y = 0; y < 7; y++) {
+						if (w.getBlockState(base.add(dx, y, dz)).isOf(Blocks.DIRT)) return "scaffold left at " + dx + "," + y + "," + dz;
+					}
+				}
 			}
 			return null;
 		});

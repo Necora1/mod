@@ -39,6 +39,7 @@ public class MineTask extends Task {
 	private int targetTicks;
 	private int collectTicks;
 	private int idleScanTicks;
+	private int finalCollectTicks;
 
 	public MineTask(CompanionEntity companion, Names.BlockMatcher matcher, int count, int radius) {
 		super(companion);
@@ -62,7 +63,11 @@ public class MineTask extends Task {
 			if (collectNearbyDrops()) return Status.RUNNING;
 			collectTicks = 0;
 		}
-		if (mined >= count) return finish(null);
+		if (mined >= count) {
+			// pick up what just dropped before calling it done
+			if (finalCollectTicks++ < 100 && collectNearbyDrops()) return Status.RUNNING;
+			return finish(null);
+		}
 		if (c.isInventoryFull()) return finish("my inventory is full");
 
 		if (target == null) {
@@ -143,7 +148,9 @@ public class MineTask extends Task {
 
 	private boolean collectNearbyDrops() {
 		Box box = c.getBoundingBox().expand(6, 3, 6);
-		List<ItemEntity> items = c.getWorld().getEntitiesByClass(ItemEntity.class, box, i -> i.isAlive() && !i.cannotPickup() && (i.owner == null || i.owner.equals(c.getUuid())));
+		// includes items still on their short pickup delay, so we walk over and grab them
+		List<ItemEntity> items = c.getWorld().getEntitiesByClass(ItemEntity.class, box, i -> i.isAlive() && i.getOwner() != c
+				&& (i.owner == null || i.owner.equals(c.getUuid())));
 		if (items.isEmpty() || c.isInventoryFull()) return false;
 		items.sort(Comparator.comparingDouble(c::squaredDistanceTo));
 		c.getMover().moveTo(items.get(0).getPos(), CompanionEntity.WALK_SPEED, 0.5);

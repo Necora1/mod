@@ -60,6 +60,10 @@ The mod uses Ollama's native API with an 8k context window (`ollamaContextSize`)
 
 You can also set the key through the `GROQ_API_KEY` environment variable instead of the config file.
 
+> **Survival tip:** like a new player, a freshly summoned companion has an empty inventory. Toss it
+> blocks, tools and food (press Q while looking at it, or right-click it to open its inventory), or ask it
+> to gather what it needs ("get some wood and make a pickaxe").
+
 ## How it plays like a player
 
 - Player model and skin (wide or slim arms), armor, held items, crouching, arm swings, player
@@ -135,7 +139,7 @@ It survives restarts, deaths and dismissals. `/companion memory Steve` shows it,
 
 Requires Java 21.
 ```
-./gradlew build
+./gradlew build          # jar in build/libs/
+./gradlew runGametest    # headless server tests: building, shelters, mining, crafting, action parsing
 ```
-The jar ends up in `build/libs/`. Every push is also built by GitHub Actions (download the jar from
-the run's artifacts).
+Every push is built and tested by GitHub Actions; the jar is attached to each run as an artifact.

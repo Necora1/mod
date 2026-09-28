@@ -158,24 +158,28 @@ public class BuildTask extends Task {
 			}
 		}
 
-		if (current < 0 || done[current]) {
-			current = pickNext();
-			entryTicks = 0;
-			standTarget = null;
-			actReach = c.getBlockReach();
-			occupiedTicks = 0;
-			if (current < 0) {
-				if (!pillarBlocks.isEmpty()) {
-					pillar = Pillar.DESCENDING;
-					return Status.RUNNING;
+		BlockPlacement e;
+		int skippedThisTick = 0;
+		while (true) {
+			if (current < 0 || done[current]) {
+				current = pickNext();
+				entryTicks = 0;
+				standTarget = null;
+				actReach = c.getBlockReach();
+				occupiedTicks = 0;
+				if (current < 0) {
+					if (!pillarBlocks.isEmpty()) {
+						pillar = Pillar.DESCENDING;
+						return Status.RUNNING;
+					}
+					return finish(true, null);
 				}
-				return finish(true, null);
 			}
-		}
-		BlockPlacement e = order.get(current);
-		if (isSatisfied(e)) {
+			e = order.get(current);
+			if (!isSatisfied(e)) break;
+			// already in place (air where air should be, the right block already there...): skip quickly
 			markDone(current, false);
-			return Status.RUNNING;
+			if (++skippedThisTick >= 256) return Status.RUNNING;
 		}
 		entryTicks++;
 		if (entryTicks > 400) {
@@ -616,29 +620,26 @@ public class BuildTask extends Task {
 		return Status.RUNNING;
 	}
 
+	/** Cheap blocks to pillar up with, avoiding the ones the build itself needs. */
 	@Nullable
 	private BlockState scaffoldState() {
-		ItemStack pick = null;
-		for (int i = 0; i < c.getInventory().size(); i++) {
-			ItemStack s = c.getInventory().getStack(i);
-			if (ItemUtil.isScaffoldBlock(s)) {
-				pick = s;
-				break;
-			}
-		}
-		if (pick == null && ItemUtil.isScaffoldBlock(c.getMainHandStack())) pick = c.getMainHandStack();
-		if (pick == null) {
-			for (int i = 0; i < c.getInventory().size(); i++) {
-				ItemStack s = c.getInventory().getStack(i);
-				if (ItemUtil.isPlaceableSolid(s)) {
-					pick = s;
-					break;
-				}
-			}
-		}
+		Set<Item> needed = blueprint.materials().keySet();
+		ItemStack pick = findScaffold(s -> ItemUtil.isScaffoldBlock(s) && !needed.contains(s.getItem()));
+		if (pick == null) pick = findScaffold(s -> ItemUtil.isPlaceableSolid(s) && !needed.contains(s.getItem()));
+		if (pick == null) pick = findScaffold(ItemUtil::isScaffoldBlock);
 		if (pick == null || !(pick.getItem() instanceof BlockItem bi)) return null;
 		Block block = bi.getBlock();
 		return block.getDefaultState();
+	}
+
+	@Nullable
+	private ItemStack findScaffold(java.util.function.Predicate<ItemStack> test) {
+		for (int i = 0; i < c.getInventory().size(); i++) {
+			ItemStack s = c.getInventory().getStack(i);
+			if (!s.isEmpty() && test.test(s)) return s;
+		}
+		ItemStack main = c.getMainHandStack();
+		return !main.isEmpty() && test.test(main) ? main : null;
 	}
 
 	private Status descend() {
