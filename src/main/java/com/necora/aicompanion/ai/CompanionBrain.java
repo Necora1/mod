@@ -110,11 +110,15 @@ public class CompanionBrain {
 	// ------------------------------------------------------------------
 
 	public void onChat(ServerPlayerEntity sender, String message) {
-		String name = sender.getGameProfile().getName();
-		boolean owner = sender.getUuid().equals(memory.ownerUuid());
+		onChat(sender.getGameProfile().getName(), sender.getUuid(), message);
+	}
+
+	/** A message from someone (uuid null = the server console / an operator). */
+	public void onChat(String name, @Nullable UUID senderUuid, String message) {
+		boolean owner = senderUuid == null || senderUuid.equals(memory.ownerUuid());
 		pending.add("[CHAT] " + name + (owner ? "" : " (not your owner)") + ": " + message);
 		pendingDirect = true;
-		lastSpeaker = sender.getUuid();
+		lastSpeaker = senderUuid;
 		lastInteractionAt = System.currentTimeMillis();
 		consecutiveRetries = 0;
 		memory.stats.messages++;

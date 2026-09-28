@@ -12,6 +12,7 @@ import com.necora.aicompanion.build.Materials;
 import com.necora.aicompanion.build.Structures;
 import com.necora.aicompanion.entity.CompanionEntity;
 import com.necora.aicompanion.entity.GameModeSetting;
+import com.necora.aicompanion.entity.Stance;
 import com.necora.aicompanion.manager.CompanionManager;
 import com.necora.aicompanion.registry.ModEntities;
 import com.necora.aicompanion.task.Task;
@@ -23,6 +24,9 @@ import com.necora.aicompanion.util.Names;
 import net.fabricmc.fabric.api.gametest.v1.FabricGameTest;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.DoorBlock;
+import net.minecraft.entity.EntityType;
+import net.minecraft.entity.EquipmentSlot;
+import net.minecraft.entity.mob.HuskEntity;
 import net.minecraft.block.Blocks;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
@@ -247,6 +251,39 @@ public class CompanionGameTests implements FabricGameTest {
 				for (int dz = -2; dz <= 2; dz++) {
 					for (int y = 0; y < 7; y++) {
 						if (w.getBlockState(base.add(dx, y, dz)).isOf(Blocks.DIRT)) return "scaffold left at " + dx + "," + y + "," + dz;
+					}
+				}
+			}
+			return null;
+		});
+	}
+
+	@GameTest(templateName = EMPTY_STRUCTURE, tickLimit = 1200)
+	public void fightsHostileMob(TestContext ctx) {
+		CompanionEntity c = spawn(ctx, new BlockPos(1, 0, 1), false);
+		c.equipStack(EquipmentSlot.MAINHAND, new ItemStack(Items.DIAMOND_SWORD));
+		c.setStance(Stance.AGGRESSIVE);
+		HuskEntity husk = ctx.spawnEntity(EntityType.HUSK, new BlockPos(6, 0, 6));
+		succeedWhen(ctx, 1200, () -> {
+			if (!c.isAlive()) return "companion died";
+			return husk.isAlive() ? "husk still alive (" + husk.getHealth() + " hp), companion target: " + c.getCombat().getTarget() : null;
+		});
+	}
+
+	@GameTest(templateName = EMPTY_STRUCTURE, tickLimit = 800)
+	public void creativeDigsHole(TestContext ctx) {
+		CompanionEntity c = spawn(ctx, new BlockPos(0, 0, 0), true);
+		CompanionBrain brain = CompanionManager.brainOf(c);
+		BlockPos center = ctx.getAbsolutePos(new BlockPos(4, 0, 4));
+		JsonObject action = JsonParser.parseString("{\"type\": \"dig\", \"at\": {\"x\": " + center.getX() + ", \"y\": " + center.getY() + ", \"z\": " + center.getZ()
+				+ "}, \"from\": [0, -2, 0], \"to\": [1, -1, 1]}").getAsJsonObject();
+		ActionDispatcher.Result result = ActionDispatcher.dispatch(new ActionContext(c, brain, null, true), List.of(action), false);
+		ctx.assertTrue(result.errors().isEmpty(), "dispatch errors: " + result.errors());
+		succeedWhen(ctx, 800, () -> {
+			for (int x = 0; x < 2; x++) {
+				for (int z = 0; z < 2; z++) {
+					for (int y = -2; y <= -1; y++) {
+						if (!ctx.getWorld().getBlockState(center.add(x, y, z)).isAir()) return "block not dug at " + x + "," + y + "," + z + "; doing: " + c.getTaskManager().describe();
 					}
 				}
 			}

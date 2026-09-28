@@ -6,7 +6,8 @@
 	"environment": "*",
 	"entrypoints": {
 		"fabric-gametest": [
-			"com.necora.aicompanion.test.CompanionGameTests"
+			"com.necora.aicompanion.test.CompanionGameTests",
+			"com.necora.aicompanion.test.LlmPipelineGameTests"
 		]
 	},
 	"depends": {
