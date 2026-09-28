@@ -83,7 +83,7 @@ public class CompanionMenuScreen extends BaseScreen {
 					.dimensions(px + pw - 8 - btnW, ry + 4, btnW, 20)
 					.tooltip(Tooltip.of(Text.literal("Orders, building, chat, memory and settings for " + name)))
 					.build());
-			if (!present && bool(c, "canManage")) {
+			if (!present && bool(c, "mine")) {
 				addDrawableChild(ButtonWidget.builder(Text.literal("Summon"), b -> GuiClient.sendFor("summon", name))
 						.dimensions(px + pw - 12 - 2 * btnW, ry + 4, btnW, 20)
 						.tooltip(Tooltip.of(Text.literal("Bring " + name + " to you. They remember everything.")))
@@ -134,7 +134,7 @@ public class CompanionMenuScreen extends BaseScreen {
 		JsonArray arr = d.has("companions") ? d.getAsJsonArray("companions") : new JsonArray();
 		for (JsonElement e : arr) {
 			JsonObject c = e.getAsJsonObject();
-			sb.append('|').append(str(c, "name", "")).append(bool(c, "present")).append(bool(c, "canManage"));
+			sb.append('|').append(str(c, "name", "")).append(bool(c, "present")).append(bool(c, "mine"));
 		}
 		return sb.toString();
 	}

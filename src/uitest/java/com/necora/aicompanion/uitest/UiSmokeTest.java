@@ -385,9 +385,11 @@ public class UiSmokeTest implements ClientModInitializer {
 			if (w.getX() < 0 || w.getY() < 0 || w.getRight() > s.width || w.getBottom() > s.height) {
 				fail(label + ": '" + msg + "' is partly off screen");
 			}
-			if (w instanceof PressableWidget) {
+			// buttons show their label, empty text fields their placeholder (our fields use it as the message)
+			boolean showsMessage = w instanceof PressableWidget || (w instanceof TextFieldWidget f && f.getText().isEmpty());
+			if (showsMessage) {
 				int tw = c.textRenderer.getWidth(w.getMessage());
-				if (tw > w.getWidth() - 8) warnings.add(label + ": label doesn't fit: '" + msg + "' needs " + tw + "px, has " + (w.getWidth() - 8));
+				if (tw > w.getWidth() - 8) warnings.add(label + ": text doesn't fit: '" + msg + "' needs " + tw + "px, has " + (w.getWidth() - 8));
 			}
 		}
 		for (int i = 0; i < widgets.size(); i++) {

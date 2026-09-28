@@ -103,10 +103,13 @@ abstract class BaseScreen extends Screen implements GuiClient.Listener {
 	}
 
 	protected TextFieldWidget field(int x, int y, int w, String value, String placeholder, int maxLength, java.util.function.Consumer<String> onChange) {
-		TextFieldWidget f = new TextFieldWidget(textRenderer, x, y, w, 18, Text.literal(placeholder));
+		// text fields don't clip their placeholder, so shorten it to the box
+		String hint = placeholder;
+		if (textRenderer.getWidth(hint) > w - 8) hint = textRenderer.trimToWidth(hint, w - 8 - textRenderer.getWidth("...")).stripTrailing() + "...";
+		TextFieldWidget f = new TextFieldWidget(textRenderer, x, y, w, 18, Text.literal(hint));
 		f.setMaxLength(maxLength);
 		f.setText(value);
-		f.setPlaceholder(Text.literal(placeholder).withColor(0xFF6E6E7A));
+		f.setPlaceholder(Text.literal(hint).withColor(0xFF6E6E7A));
 		f.setChangedListener(onChange);
 		return addDrawableChild(f);
 	}

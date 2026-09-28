@@ -132,7 +132,7 @@ public class CompanionScreen extends BaseScreen {
 			b.active = t != tab;
 		}
 
-		if (d != null && !present() && canManage()) {
+		if (d != null && !present() && bool(d, "mine")) {
 			addDrawableChild(ButtonWidget.builder(Text.literal("Summon"), b -> GuiClient.sendFor("summon", name))
 					.dimensions(sx + 4, sy + 110, sw - 8, 20)
 					.tooltip(Tooltip.of(Text.literal("Bring " + name + " to you")))
