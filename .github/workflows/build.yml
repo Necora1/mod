@@ -31,6 +31,7 @@ jobs:
           name: ai-companion-jar
           path: build/libs/
       - name: game tests
+        timeout-minutes: 10
         run: |
           set -o pipefail
           ./gradlew runGametest --console=plain 2>&1 | tee gametest.log

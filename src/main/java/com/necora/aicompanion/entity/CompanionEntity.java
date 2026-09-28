@@ -121,6 +121,9 @@ public class CompanionEntity extends PathAwareEntity {
 	private int chatCooldown = 0;
 
 	private int sneakTicks = 0;
+	@Nullable
+	private Entity focus;
+	private int focusTicks;
 	/** Item conjured into the hand while building in creative (not a real inventory item). */
 	@Nullable
 	private ItemStack displayStack;
@@ -350,6 +353,18 @@ public class CompanionEntity extends PathAwareEntity {
 			}
 			tickAutoEat();
 		}
+		if (focusTicks > 0) {
+			focusTicks--;
+			if (focus != null && focus.isAlive() && !fighting && !taskManager.isBusy() && focus.getWorld() == this.getWorld()) {
+				this.getLookControl().lookAt(focus, 30.0F, 30.0F);
+			}
+		}
+	}
+
+	/** Turn toward someone for a moment (e.g. when replying to them), like a player would. */
+	public void focusOn(@Nullable Entity entity, int ticks) {
+		this.focus = entity;
+		this.focusTicks = entity == null ? 0 : ticks;
 	}
 
 	@Override

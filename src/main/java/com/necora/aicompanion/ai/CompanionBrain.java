@@ -336,7 +336,11 @@ public class CompanionBrain {
 		memory.addHistory("assistant", reply.compact());
 		dirty = true;
 
-		if (!reply.say().isEmpty()) c.queueChat(reply.say(), 0);
+		if (!reply.say().isEmpty()) {
+			c.queueChat(reply.say(), 0);
+			ServerPlayerEntity listener = speakerId == null ? null : server.getPlayerManager().getPlayer(speakerId);
+			if (listener != null && listener.getWorld() == c.getWorld() && listener.distanceTo(c) < 16) c.focusOn(listener, 60);
+		}
 		for (String fact : reply.remember()) memory.addFact(fact, day());
 
 		if (!reply.actions().isEmpty()) {
