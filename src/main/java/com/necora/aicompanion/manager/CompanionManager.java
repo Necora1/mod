@@ -239,7 +239,8 @@ public final class CompanionManager {
 			brain.markDirty();
 		} else if (!current.equals(e.getUuid()) || m.away) {
 			// A stale copy (the companion was re-summoned or is away): hand over its items and remove it.
-			server.execute(() -> retireStaleBody(e, brain));
+			final CompanionBrain owningBrain = brain;
+			server.execute(() -> retireStaleBody(e, owningBrain));
 			return;
 		}
 		loaded.put(e.getUuid(), e);
