@@ -14,6 +14,16 @@ repositories {
 	// Loom adds the repositories needed for Minecraft and Fabric automatically.
 }
 
+sourceSets {
+	// Server GameTests (./gradlew runGametest). Not part of the released jar.
+	gametest {
+		compileClasspath += sourceSets.main.compileClasspath
+		compileClasspath += sourceSets.main.output
+		runtimeClasspath += sourceSets.main.runtimeClasspath
+		runtimeClasspath += sourceSets.main.output
+	}
+}
+
 loom {
 	splitEnvironmentSourceSets()
 	accessWidenerPath = file("src/main/resources/aicompanion.accesswidener")
@@ -22,6 +32,20 @@ loom {
 		"aicompanion" {
 			sourceSet sourceSets.main
 			sourceSet sourceSets.client
+		}
+		"aicompanion-gametest" {
+			sourceSet sourceSets.gametest
+		}
+	}
+
+	runs {
+		gametest {
+			server()
+			name "Game Test"
+			vmArg "-Dfabric-api.gametest"
+			vmArg "-Dfabric-api.gametest.report-file=${project.layout.buildDirectory.get().asFile}/gametest-report.xml"
+			runDir "build/gametest"
+			source sourceSets.gametest
 		}
 	}
 }

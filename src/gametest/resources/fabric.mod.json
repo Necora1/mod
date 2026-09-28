@@ -1,0 +1,15 @@
+{
+	"schemaVersion": 1,
+	"id": "aicompanion-gametest",
+	"version": "1.0.0",
+	"name": "AI Companion GameTests",
+	"environment": "*",
+	"entrypoints": {
+		"fabric-gametest": [
+			"com.necora.aicompanion.test.CompanionGameTests"
+		]
+	},
+	"depends": {
+		"aicompanion": "*"
+	}
+}
