@@ -19,6 +19,8 @@ jobs:
           distribution: 'temurin'
       - name: setup gradle
         uses: gradle/actions/setup-gradle@v4
+        with:
+          cache-cleanup: never
       - name: make gradle wrapper executable
         run: chmod +x ./gradlew
       - name: build
@@ -35,6 +37,28 @@ jobs:
         run: |
           set -o pipefail
           ./gradlew runGametest --console=plain 2>&1 | tee gametest.log
+      - name: install virtual display
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq xvfb libgl1-mesa-dri libglx-mesa0 > /dev/null
+      - name: client UI smoke test
+        timeout-minutes: 15
+        run: |
+          # the in-world part of the test runs in the world the game tests just saved
+          mkdir -p build/uitest/saves
+          rm -rf build/uitest/saves/uitest
+          if [ -d build/gametest/world ]; then cp -r build/gametest/world build/uitest/saves/uitest; else ls build/gametest; fi
+          printf 'onboardAccessibility:false\npauseOnLostFocus:false\ntutorialStep:none\nsoundCategory_master:0.0\n' > build/uitest/options.txt
+          set -o pipefail
+          xvfb-run -a -s "-screen 0 1280x800x24" ./gradlew runUitest --console=plain 2>&1 | tee uitest.log
+          grep -q "UITEST RESULT: .*, 0 failures" uitest.log
+      - name: capture UI screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ui-screenshots
+          path: build/uitest/screenshots/
+          if-no-files-found: ignore
       - name: test summary / errors
         if: always()
         run: |
@@ -42,4 +66,10 @@ jobs:
           if [ -f gametest.log ]; then
             grep -E -B2 -A12 "failed|Exception|ERROR|required tests" gametest.log | grep -v "^\s*at " | head -n 400 || true
             grep -E "GAME TESTS COMPLETE|required tests (passed|failed)" gametest.log || true
+          fi
+          if [ -f uitest.log ]; then
+            echo "===== UI test ====="
+            grep -E -A3 "(\.java:[0-9]+: error:)|What went wrong" uitest.log | head -n 200 || true
+            grep -E -A25 "Crash Report|Exception in|Unhandled game exception" uitest.log | head -n 150 || true
+            grep -E "UITEST|^    \S" uitest.log | head -n 900 || true
           fi

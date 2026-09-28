@@ -14,6 +14,11 @@ repositories {
 	// Loom adds the repositories needed for Minecraft and Fabric automatically.
 }
 
+loom {
+	// creates the "client" source set used below
+	splitEnvironmentSourceSets()
+}
+
 sourceSets {
 	// Server GameTests (./gradlew runGametest). Not part of the released jar.
 	gametest {
@@ -22,10 +27,18 @@ sourceSets {
 		runtimeClasspath += sourceSets.main.runtimeClasspath
 		runtimeClasspath += sourceSets.main.output
 	}
+	// Client UI smoke test (./gradlew runUitest, needs a display). Not part of the released jar.
+	uitest {
+		compileClasspath += sourceSets.client.compileClasspath
+		compileClasspath += sourceSets.main.output
+		compileClasspath += sourceSets.client.output
+		runtimeClasspath += sourceSets.client.runtimeClasspath
+		runtimeClasspath += sourceSets.main.output
+		runtimeClasspath += sourceSets.client.output
+	}
 }
 
 loom {
-	splitEnvironmentSourceSets()
 	accessWidenerPath = file("src/main/resources/aicompanion.accesswidener")
 
 	mods {
@@ -36,6 +49,9 @@ loom {
 		"aicompanion-gametest" {
 			sourceSet sourceSets.gametest
 		}
+		"aicompanion-uitest" {
+			sourceSet sourceSets.uitest
+		}
 	}
 
 	runs {
@@ -45,6 +61,13 @@ loom {
 			vmArg "-Dfabric-api.gametest"
 			runDir "build/gametest"
 			source sourceSets.gametest
+		}
+		uitest {
+			client()
+			name "UI Test"
+			vmArg "-Daicompanion.uitest=true"
+			runDir "build/uitest"
+			source sourceSets.uitest
 		}
 	}
 }

@@ -164,5 +164,6 @@ Requires Java 21.
 ```
 ./gradlew build          # jar in build/libs/
 ./gradlew runGametest    # headless server tests: building, shelters, mining, crafting, action parsing, GUI requests
+./gradlew runUitest      # opens a real client and clicks through every screen (needs saves/uitest in build/uitest)
 ```
 Every push is built and tested by GitHub Actions; the jar is attached to each run as an artifact.

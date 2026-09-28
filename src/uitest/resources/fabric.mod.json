@@ -1,0 +1,15 @@
+{
+	"schemaVersion": 1,
+	"id": "aicompanion-uitest",
+	"version": "1.0.0",
+	"name": "AI Companion UI smoke test",
+	"environment": "client",
+	"entrypoints": {
+		"client": [
+			"com.necora.aicompanion.uitest.UiSmokeTest"
+		]
+	},
+	"depends": {
+		"aicompanion": "*"
+	}
+}
