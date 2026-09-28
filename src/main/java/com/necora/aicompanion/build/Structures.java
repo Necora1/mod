@@ -174,7 +174,8 @@ public final class Structures {
 		if (door.contains(DoorBlock.FACING)) {
 			door = door.with(DoorBlock.FACING, f.forward()).with(DoorBlock.HALF, DoubleBlockHalf.LOWER).with(DoorBlock.HINGE, DoorHinge.LEFT);
 		}
-		bp.set(f.at(doorU, 1, 0), door, BlockPlacement.PHASE_DETAIL);
+		// optional: without a door in the inventory the doorway just stays open
+		bp.setOptional(f.at(doorU, 1, 0), door, BlockPlacement.PHASE_DETAIL);
 		bp.setOptional(f.at(doorU + 1, 2, -1), Blocks.WALL_TORCH.getDefaultState().with(WallTorchBlock.FACING, f.back()), BlockPlacement.PHASE_DETAIL);
 		bp.setOptional(f.at(1, 1, 1), Blocks.TORCH.getDefaultState(), BlockPlacement.PHASE_DETAIL);
 		if (s.furnish) {
@@ -230,7 +231,7 @@ public final class Structures {
 		bp.forceClear(f.at(mid, 1, 0));
 		bp.forceClear(f.at(mid, 2, 0));
 		BlockState door = Blocks.OAK_DOOR.getDefaultState().with(DoorBlock.FACING, f.forward()).with(DoorBlock.HALF, DoubleBlockHalf.LOWER);
-		bp.set(f.at(mid, 1, 0), door, BlockPlacement.PHASE_DETAIL);
+		bp.setOptional(f.at(mid, 1, 0), door, BlockPlacement.PHASE_DETAIL);
 		// top floor with a ladder hole
 		for (int u = 0; u < w; u++) {
 			for (int v = 0; v < w; v++) {

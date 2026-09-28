@@ -642,7 +642,7 @@ public final class ActionDispatcher {
 	 */
 	private static void adaptToInventory(CompanionEntity c, Blueprint bp) {
 		if (c.isCreativeMode() || !CompanionConfig.get().requireMaterialsInSurvival) return;
-		for (int round = 0; round < 3; round++) {
+		for (int round = 0; round < 8; round++) {
 			Map<Item, Integer> need = bp.materials();
 			boolean changed = false;
 			for (Map.Entry<Item, Integer> e : need.entrySet()) {
