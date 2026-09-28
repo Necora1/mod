@@ -268,7 +268,7 @@ public final class CompanionCommands {
 			ctx.getSource().sendFeedback(() -> Text.literal("Heads up: no API key set, so " + name + " can't think yet. Get a free Groq key at console.groq.com and run /companion config key <key> - or use a local model with /companion config provider ollama")
 					.formatted(Formatting.GOLD), false);
 		} else {
-			ok(ctx, name + " is here! Talk to them in chat. Sneak + right-click = follow/stay, right-click = inventory.");
+			ok(ctx, name + " is here! Talk to them in chat. Right-click them (or press G) for their menu, sneak + right-click = follow/stay.");
 		}
 		return 1;
 	}
@@ -537,7 +537,7 @@ public final class CompanionCommands {
 				"§e/companion mode <name> auto|survival|creative§r, §e/companion stance <name> passive|defensive|aggressive",
 				"§e/companion skin <name> <player>§r, §e/companion personality <name> <text>",
 				"§e/companion memory <name>§r, §e/companion forget <name> [chat|facts|places|all]",
-				"§e/companion inventory <name>§r (or right-click them), sneak+right-click = follow/stay",
+				"§e/companion inventory <name>§r, sneak+right-click = follow/stay. Press §eG§r for the companion menu.",
 				"§e/companion do <name> <json>§r - run actions directly, e.g. {\"type\":\"build\",\"structure\":\"tower\"}",
 				"§e/companion config§r - provider/model/key (groq, ollama, lmstudio...), §e/companion config test",
 		};

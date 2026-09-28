@@ -4,6 +4,7 @@ import com.necora.aicompanion.AICompanionMod;
 import com.necora.aicompanion.ai.CompanionBrain;
 import com.necora.aicompanion.config.CompanionConfig;
 import com.necora.aicompanion.manager.CompanionManager;
+import com.necora.aicompanion.net.GuiServer;
 import com.necora.aicompanion.task.CombatController;
 import com.necora.aicompanion.task.TaskManager;
 import com.necora.aicompanion.util.ItemUtil;
@@ -896,7 +897,10 @@ public class CompanionEntity extends PathAwareEntity {
 		if (sp.isSneaking()) {
 			taskManager.toggleFollowStay(sp);
 		} else {
-			openInventory(sp);
+			CompanionBrain brain = CompanionManager.brainOf(this);
+			// players with the mod installed get the companion menu, vanilla clients the inventory
+			if (brain != null && GuiServer.hasGui(sp)) GuiServer.openFor(sp, brain);
+			else openInventory(sp);
 		}
 		return ActionResult.SUCCESS;
 	}

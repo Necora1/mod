@@ -14,13 +14,10 @@ and **creative** (unlimited blocks, instant breaking, flies).
 1. Install [Fabric Loader](https://fabricmc.net/use/) for 1.21.1 and put **Fabric API** and
    `ai-companion-x.y.z.jar` in your `mods` folder.
 2. Get a free API key at [console.groq.com](https://console.groq.com/keys) (or use a local model,
-   see below).
-3. In game:
-   ```
-   /companion config key gsk_your_key_here
-   /companion summon Steve
-   ```
-   Optional: give it a real player's skin: `/companion summon Steve Notch` or `/companion skin Steve jeb_`.
+   see below). On the title screen, click **AI Companion** (top left), paste the key and press
+   **Test connection**.
+3. In a world, press **G** to open the companion menu, type a name (and optionally a real player's
+   name for the skin) and press **Summon**.
 4. Just talk in chat:
    - "hey steve, surround me with blocks and protect me"
    - "build a small house here" / "build a stone tower over there" (look where you mean)
@@ -34,19 +31,42 @@ and **creative** (unlimited blocks, instant breaking, flies).
 Your companion hears you when you're within 48 blocks (you don't need to say its name). With several
 companions, say a name to talk to one, or "everyone"/"guys" to talk to all of them.
 
+## The menus (no commands needed)
+
+- **G** (or *AI Companions* in the pause menu): all your companions with health, hunger and what
+  they're doing; summon new ones or call away ones back; open **AI Settings**.
+- **Right-click a companion**: its own screen with tabs
+  - **Orders**: follow, stay, come, protect me, surround me, stop, teleport here, inventory,
+    undo last build, attack mobs, pick up items, eat, light up the area, set home / go home,
+    combat stance and game mode.
+  - **Work**: build a house, tower, wall, fence, platform, bridge or pillar (size, material and where:
+    in front of you, where you look, where the companion is, or a saved place); dig a hole;
+    mine / chop something; craft something; ask for items from its inventory.
+  - **Chat**: the conversation so far and a private message box.
+  - **Memory**: facts it remembers, saved places, recent events and the summary of older chats;
+    add or delete single memories, or wipe them.
+  - **Setup**: personality, skin, trusted players, stats, send away, delete.
+- **Sneak + right-click**: toggle follow / stay.
+- **AI Settings**: provider (Groq, Ollama, LM Studio, llama.cpp, OpenRouter, OpenAI), model, API key,
+  server URL, a connection test, and every other setting (chat, memory, gameplay). From the title
+  screen it edits your local config; in a world it edits the server's config (operators and the
+  singleplayer host only). The key is never sent back to clients.
+
+The key for the menu can be changed in Options > Controls > Key Binds > AI Companion. Players without
+the mod on a server can still use everything through `/companion` commands (right-click then opens the
+companion's inventory).
+
 ## Using a local Llama model
 
-**Ollama** (recommended for local):
-```
-ollama pull llama3.1
-/companion config provider ollama
-/companion config model llama3.1
-```
+**Ollama** (recommended for local): install it, run `ollama pull llama3.1`, then pick
+*Ollama* as the provider in AI Settings (or `/companion config provider ollama` and
+`/companion config model llama3.1`).
 Bigger models follow instructions much better. `llama3.1:8b` works; `qwen2.5:14b`,
 `llama3.3:70b` or similar are noticeably smarter if your PC can run them.
 The mod uses Ollama's native API with an 8k context window (`ollamaContextSize`).
 
-**LM Studio / llama.cpp server / any OpenAI-compatible server:**
+**LM Studio / llama.cpp server / any OpenAI-compatible server:** pick it in AI Settings and set the
+model name (and the URL if it's not on the default port), or:
 ```
 /companion config provider lmstudio          (http://localhost:1234/v1)
 /companion config provider llamacpp          (http://localhost:8080/v1)
@@ -61,7 +81,7 @@ The mod uses Ollama's native API with an 8k context window (`ollamaContextSize`)
 You can also set the key through the `GROQ_API_KEY` environment variable instead of the config file.
 
 > **Survival tip:** like a new player, a freshly summoned companion has an empty inventory. Toss it
-> blocks, tools and food (press Q while looking at it, or right-click it to open its inventory), or ask it
+> blocks, tools and food (press Q while looking at it, or use *Inventory* in its menu), or ask it
 > to gather what it needs ("get some wood and make a pickaxe").
 
 ## How it plays like a player
@@ -95,6 +115,8 @@ It survives restarts, deaths and dismissals. `/companion memory Steve` shows it,
 
 ## Commands
 
+Everything in the menus is also available as a command:
+
 | Command | |
 |---|---|
 | `/companion summon <name> [skin]` | Summon (or call over) a companion |
@@ -111,15 +133,15 @@ It survives restarts, deaths and dismissals. `/companion memory Steve` shows it,
 | `/companion personality <name> <text>` | e.g. "grumpy dwarf who loves mining" |
 | `/companion trust <name> <player>` | Let a friend give it orders too |
 | `/companion memory <name>` / `forget <name> [what]` | Inspect / clear memory |
-| `/companion inventory <name>` | Open its inventory (or right-click it) |
+| `/companion inventory <name>` | Open its inventory |
 | `/companion config ...` | `provider`, `model`, `key`, `url`, `set <field> <value>`, `test`, `reload` |
 
 `/ai` is an alias of `/companion`. Sneak + right-click the companion to toggle follow/stay.
 
 ## Configuration
 
-`config/aicompanion.json` (created on first launch). Everything can also be changed with
-`/companion config set <field> <value>`. Highlights:
+`config/aicompanion.json` (created on first launch). Everything can be changed in **AI Settings**
+or with `/companion config set <field> <value>`. Highlights:
 
 | Setting | Default | |
 |---|---|---|
@@ -141,6 +163,6 @@ It survives restarts, deaths and dismissals. `/companion memory Steve` shows it,
 Requires Java 21.
 ```
 ./gradlew build          # jar in build/libs/
-./gradlew runGametest    # headless server tests: building, shelters, mining, crafting, action parsing
+./gradlew runGametest    # headless server tests: building, shelters, mining, crafting, action parsing, GUI requests
 ```
 Every push is built and tested by GitHub Actions; the jar is attached to each run as an artifact.
